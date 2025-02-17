@@ -44,7 +44,7 @@ public class VoucherService implements IVoucherService {
                 .voucherID(IDGenerate.generate())
                 .code(request.getCode())
                 .description(request.getDescription())
-                .voucherType(FactoryEnum.getInstanceVoucherType(request.getType()))
+                .voucherType(FactoryEnum.getEnumInstance(EVoucherType.class, request.getType()))
                 .voucherValue(request.getVoucherValue())
                 .minOrderValue(request.getMinOrderValue())
                 .maxValueAmount(request.getMaxValueAmount())
@@ -67,7 +67,7 @@ public class VoucherService implements IVoucherService {
 
         oldVoucher.setCode(request.getCode());
         oldVoucher.setDescription(request.getDescription());
-        oldVoucher.setVoucherType(FactoryEnum.getInstanceVoucherType(request.getType()));
+        oldVoucher.setVoucherType(FactoryEnum.getEnumInstance(EVoucherType.class, request.getType()));
         oldVoucher.setVoucherValue(request.getVoucherValue());
         oldVoucher.setMinOrderValue(request.getMinOrderValue());
         oldVoucher.setMaxValueAmount(request.getMaxValueAmount());
@@ -138,7 +138,7 @@ public class VoucherService implements IVoucherService {
             List<Predicate> predicates = new ArrayList<>();
 
             if (type != null) {
-                predicates.add(criteriaBuilder.equal(root.get("voucherType"), FactoryEnum.getInstanceVoucherType(type)));
+                predicates.add(criteriaBuilder.equal(root.get("voucherType"), FactoryEnum.getEnumInstance(EVoucherType.class, type)));
             }
             if (isValidInt(voucherValue)) {
                 predicates.add(criteriaBuilder.equal(root.get("voucherValue"), Integer.parseInt(voucherValue)));
@@ -165,7 +165,7 @@ public class VoucherService implements IVoucherService {
                 predicates.add(criteriaBuilder.equal(root.get("used_count"), Integer.parseInt(used_count)));
             }
             if (status != null) {
-                predicates.add(criteriaBuilder.equal(root.get("voucherStatus"), FactoryEnum.getInstanceVoucherStatus(status)));
+                predicates.add(criteriaBuilder.equal(root.get("voucherStatus"), FactoryEnum.getEnumInstance(EVoucherStatus.class, status)));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

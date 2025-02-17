@@ -44,7 +44,7 @@ public class InventoryService implements IInventoryService {
 
     @Override
     public List<Inventory> getBySize(String size) {
-        List<Inventory> inventories = inventoryRepository.findBySize(FactoryEnum.getInstanceSize(size));
+        List<Inventory> inventories = inventoryRepository.findBySize(FactoryEnum.getEnumInstance(ESize.class, size));
         log.info("[getBySize] - Retrieved {} inventory by size", inventories.size());
         return inventories;
     }
@@ -64,7 +64,7 @@ public class InventoryService implements IInventoryService {
 
     @Override
     public List<Inventory> getByInventoryStatus(String status) {
-        List<Inventory> inventories = inventoryRepository.findByInventoryStatus(FactoryEnum.getInstanceInventoryStatus(status));
+        List<Inventory> inventories = inventoryRepository.findByInventoryStatus(FactoryEnum.getEnumInstance(EInventoryStatus.class, status));
         log.info("[getByInventoryStatus] - Retrieved {} inventory by status", inventories.size());
         return inventories;
     }
@@ -81,9 +81,9 @@ public class InventoryService implements IInventoryService {
     public List<Inventory> searchInventory(String size, String color, String status) {
         Specification<Inventory> spec = ((root, query, builder) -> {
             List<Predicate> predicates = new ArrayList<>();
-            if (size != null) predicates.add(builder.equal(root.get("size"), FactoryEnum.getInstanceSize(size)));
+            if (size != null) predicates.add(builder.equal(root.get("size"), FactoryEnum.getEnumInstance(ESize.class, size)));
             if (color != null && !color.isEmpty()) predicates.add(builder.like(root.get("color"), "%" + color + "%"));
-            if (status != null) predicates.add(builder.equal(root.get("inventoryStatus"), FactoryEnum.getInstanceInventoryStatus(status)));
+            if (status != null) predicates.add(builder.equal(root.get("inventoryStatus"), FactoryEnum.getEnumInstance(EInventoryStatus.class, status)));
             return builder.and(predicates.toArray(new Predicate[0]));
         });
         List<Inventory> inventories = inventoryRepository.findAll(spec);
@@ -102,14 +102,14 @@ public class InventoryService implements IInventoryService {
 
         Inventory inventory = Inventory.builder()
                 .inventoryID(IDGenerate.generate())
-                .size(FactoryEnum.getInstanceSize(request.getSize()))
+                .size(FactoryEnum.getEnumInstance(ESize.class, request.getSize()))
                 .color(request.getColor())
                 .soldQuantity(0)
                 .stockQuantity(request.getStockQuantity())
                 .imageUrl(request.getImageUrl())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
-                .inventoryStatus(FactoryEnum.getInstanceInventoryStatus(request.getInventoryStatus()))
+                .inventoryStatus(FactoryEnum.getEnumInstance(EInventoryStatus.class, request.getInventoryStatus()))
                 .products(products)
                 .build();
 
@@ -133,11 +133,11 @@ public class InventoryService implements IInventoryService {
             oldInventory.setProducts(products);
         }
 
-        oldInventory.setSize(FactoryEnum.getInstanceSize(request.getSize()));
+        oldInventory.setSize(FactoryEnum.getEnumInstance(ESize.class, request.getSize()));
         oldInventory.setStockQuantity(request.getStockQuantity());
         oldInventory.setImageUrl(request.getImageUrl());
         oldInventory.setUpdatedAt(LocalDateTime.now());
-        oldInventory.setInventoryStatus(FactoryEnum.getInstanceInventoryStatus(request.getInventoryStatus()));
+        oldInventory.setInventoryStatus(FactoryEnum.getEnumInstance(EInventoryStatus.class, request.getInventoryStatus()));
 
         inventoryRepository.save(oldInventory);
         log.info("[update] - Updated successfully");
