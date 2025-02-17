@@ -25,6 +25,17 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Response<?>> handleIllegalArgumentException(IllegalArgumentException exception) {
+        log.debug("IllegalArgumentException: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                Response.builder().status(HttpStatus.BAD_REQUEST.value())
+                        .message(exception.getMessage())
+                        .timestamp(LocalDateTime.now())
+                        .build()
+        );
+    }
+
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<Response<?>> handleDuplicateResourceException(DuplicateResourceException exception) {
         log.debug("DuplicateResourceException: {}", exception.getMessage(), exception);
