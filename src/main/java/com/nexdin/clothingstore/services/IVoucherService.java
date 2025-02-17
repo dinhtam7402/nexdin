@@ -19,5 +19,6 @@ public interface IVoucherService {
     Vouchers getByCode(String code);
     List<Vouchers> getAll();
     List<Vouchers> searchVoucher(String type, String voucherValue, String minOrderValue, String maxValueAmount, String startDate, String endDate, String usage_limit, String used_count, String status);
-    int applyVoucher(String voucherCode, int orderValue);
+    Integer applyVoucher(Vouchers voucher, int orderValue);
+    Vouchers getAndLockByCode(String code);
 }

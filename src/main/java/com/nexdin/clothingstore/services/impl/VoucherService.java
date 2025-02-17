@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -176,10 +177,15 @@ public class VoucherService implements IVoucherService {
     }
 
     @Override
-    public int applyVoucher(String voucherCode, int orderValue) {
-        Vouchers voucher = getByCode(voucherCode);
+    public Vouchers getAndLockByCode(String code) {
+        Vouchers voucher = voucherRepository.findAndLockByCode(code);
+        if (voucher == null) throw new EntityNotFoundException("Not found voucher by code: " + code);
+        return voucher;
+    }
 
-        if (!isValidVoucher(voucher, orderValue)) return 0;
+    @Override
+    public Integer applyVoucher(Vouchers voucher, int orderValue) {
+        if (!isValidVoucher(voucher, orderValue)) return null;
 
         int discountAmount = 0;
         if (voucher.getVoucherType() == EVoucherType.FIXED) {
@@ -188,6 +194,9 @@ public class VoucherService implements IVoucherService {
             discountAmount = (orderValue * voucher.getVoucherValue()) / 100;
             discountAmount = Math.min(discountAmount, voucher.getMaxValueAmount());
         }
+
+        voucher.setUsed_count(voucher.getUsed_count() + 1);
+        voucherRepository.save(voucher);
 
         return discountAmount;
     }

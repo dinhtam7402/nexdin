@@ -1,0 +1,11 @@
+{
+  "customerID": "b8efa0d48",
+  "voucherCode": "DISCOUNT2025",
+  "orderItems": [
+    {
+      "productID": "",
+      "inventoryID": "b20fbb2d1",
+      "quantity": 1
+    }
+  ]
+}

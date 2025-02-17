@@ -30,6 +30,14 @@ public class InventoryService implements IInventoryService {
     @Autowired
     private IProductService productService;
 
+
+    @Override
+    public List<Inventory> getAll() {
+        List<Inventory> inventories = inventoryRepository.findAll();
+        log.info("[getAll] - Retrieved {} inventory by size", inventories.size());
+        return inventories;
+    }
+
     @Override
     public Inventory getByID(String inventoryID) {
         Inventory inventory = inventoryRepository.findById(inventoryID).orElseThrow(
@@ -150,5 +158,18 @@ public class InventoryService implements IInventoryService {
         Inventory inventory = getByID(inventoryID);
         inventoryRepository.delete(inventory);
         log.info("[delete] - Deleted successfully");
+    }
+
+    @Override
+    public void save(Inventory inventory) {
+        inventoryRepository.save(inventory);
+    }
+
+    @Override
+    public Inventory getAndLockByID(String inventoryID) {
+        Inventory inventory = inventoryRepository.findAndLockById(inventoryID);
+        if (inventory == null) throw new EntityNotFoundException("Not found inventory by ID: " + inventoryID);
+        log.info("[getAndLockByID] - success");
+        return inventory;
     }
 }

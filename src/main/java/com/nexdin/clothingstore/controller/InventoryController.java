@@ -113,6 +113,18 @@ public class InventoryController {
         );
     }
 
+    @GetMapping("/inventory/get-all")
+    public ResponseEntity<Response<?>> getAll() {
+        List<Inventory> inventories = inventoryService.getAll();
+        return ResponseEntity.status(HttpStatus.OK).body(
+                Response.builder().status(HttpStatus.OK.value())
+                        .message("success")
+                        .timestamp(LocalDateTime.now())
+                        .result(inventories)
+                        .build()
+        );
+    }
+
     @GetMapping("/inventory/search")
     public ResponseEntity<Response<?>> searchInventory(@RequestParam(required = false) String size,
                                                        @RequestParam(required = false) String color,

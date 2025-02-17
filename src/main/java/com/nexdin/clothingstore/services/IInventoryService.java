@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface IInventoryService {
     Inventory getByID(String inventoryID);
+    Inventory getAndLockByID(String inventoryID);
+    List<Inventory> getAll();
     List<Inventory> getBySize(String size);
     List<Inventory> getByColor(String color);
     List<Inventory> getByInventoryStatus(String status);
@@ -17,4 +19,5 @@ public interface IInventoryService {
     Inventory create(InventoryRequest request);
     Inventory update(String inventoryID, InventoryRequest request);
     void delete(String inventoryID);
+    void save(Inventory inventory);
 }
