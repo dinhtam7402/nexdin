@@ -1,11 +1,11 @@
 {
   "customerID": "b8efa0d48",
-  "voucherCode": "DISCOUNT2025",
+  "voucherCode": "",
   "orderItems": [
     {
-      "productID": "",
-      "inventoryID": "b20fbb2d1",
+      "inventoryID": "d4915854c",
       "quantity": 1
     }
-  ]
+  ],
+  "paymentMethod": ""
 }

@@ -8,8 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 public interface IOrderService {
+    Orders getByID(String orderID);
     Orders create(OrderRequest request);
-    Orders update(String orderID, OrderRequest request);
-    void delete(String orderID);
-    List<Orders> searchOrder(String customerID, String voucherID, String orderDate, String totalAmount, String orderStatus);
+    Orders updateOrderStatus(String orderID, String status);
+    List<Orders> getAll();
+    List<Orders> getOrderByCustomer(String customerID);
 }

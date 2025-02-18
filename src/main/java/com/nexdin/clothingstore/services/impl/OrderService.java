@@ -3,9 +3,12 @@ package com.nexdin.clothingstore.services.impl;
 import com.nexdin.clothingstore.domain.*;
 import com.nexdin.clothingstore.domain.enums.EInventoryStatus;
 import com.nexdin.clothingstore.domain.enums.EOrderStatus;
+import com.nexdin.clothingstore.domain.enums.EPaymentMethod;
+import com.nexdin.clothingstore.domain.enums.EPaymentStatus;
 import com.nexdin.clothingstore.payload.request.OrderRequest;
 import com.nexdin.clothingstore.repository.IOrderRepository;
 import com.nexdin.clothingstore.services.*;
+import com.nexdin.clothingstore.utils.FactoryEnum;
 import com.nexdin.clothingstore.utils.IDGenerate;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -32,11 +35,27 @@ public class OrderService implements IOrderService {
     @Autowired
     private IInventoryService inventoryService;
 
+    @Autowired
+    private IPaymentService paymentService;
+
+    @Override
+    public Orders getByID(String orderID) {
+        Orders order = orderRepository.findById(orderID).orElseThrow(
+                () -> {
+                    log.warn("[getByID] - Not found order by ID: {}", orderID);
+                    return new EntityNotFoundException("Not found order by ID: " + orderID);
+                });
+        log.info("[getByID] - Found order by ID: {}", orderID);
+        return order;
+    }
+
     @Override
     @Transactional
     public Orders create(OrderRequest request) {
+        // Lấy thông tin khách hàng
         Customers customer = customerService.getByID(request.getCustomerID());
 
+        // Tạo đơn đặt hàng
         Orders newOrder = new Orders();
         newOrder.setOrderID(IDGenerate.generate());
         newOrder.setCustomers(customer);
@@ -46,18 +65,29 @@ public class OrderService implements IOrderService {
         int totalAmount = 0;
         List<OrderItems> orderItems = new ArrayList<>();
 
+        // Kiểm tra hàng tồn kho
         for (OrderRequest.Items item : request.getOrderItems()) {
             Inventory inventory = inventoryService.getAndLockByID(item.getInventoryID());
+
+            // Nếu số lượng không đủ thì ném ra ngoại lệ
             if (item.getQuantity() > inventory.getStockQuantity() || inventory.getInventoryStatus() != EInventoryStatus.IN_STOCK || inventory.getStockQuantity() <= 0) {
                 log.warn("[create] - Product '{}' is not enough in stock", inventory.getProducts().getProductName());
                 throw new EntityNotFoundException("Product " + inventory.getProducts().getProductName() + " is not enough in stock");
             }
 
+            // Đủ số lượng tạo danh sách sản phẩm được đặt và tính tổng giá trị đơn đặt hàng
             OrderItems orderItem = new OrderItems(IDGenerate.generate(), item.getQuantity(), inventory.getProducts().getSellingPrice(), newOrder,  inventory.getProducts());
             orderItems.add(orderItem);
             totalAmount += orderItem.getQuantity() * orderItem.getPrice();
+
+            // Cập nhật số lượng đã bán và tồn kho
+            inventory.setStockQuantity(inventory.getStockQuantity() - item.getQuantity());
+            inventory.setSoldQuantity(inventory.getSoldQuantity() + item.getQuantity());
+            if (inventory.getStockQuantity() <= 0) inventory.setInventoryStatus(EInventoryStatus.OUT_OF_STOCK);
+            inventoryService.save(inventory);
         }
 
+        // Sử dụng voucher
         Vouchers voucher = voucherService.getAndLockByCode(request.getVoucherCode());
         Integer discountAmount = voucherService.applyVoucher(voucher, totalAmount);
         if (discountAmount != null) {
@@ -68,33 +98,44 @@ public class OrderService implements IOrderService {
         }
 
         newOrder.setTotalAmount(totalAmount);
-
-        for (OrderRequest.Items item : request.getOrderItems()) {
-            Inventory inventory = inventoryService.getByID(item.getInventoryID());
-            inventory.setStockQuantity(inventory.getStockQuantity() - item.getQuantity());
-            inventory.setSoldQuantity(inventory.getSoldQuantity() + item.getQuantity());
-            if (inventory.getStockQuantity() <= 0) inventory.setInventoryStatus(EInventoryStatus.OUT_OF_STOCK);
-            inventoryService.save(inventory);
-        }
-
         newOrder.setOrderItems(orderItems);
         orderRepository.save(newOrder);
+
+        Payments payment = new Payments();
+        payment.setPaymentID(IDGenerate.generate());
+        payment.setOrders(newOrder);
+        payment.setPaymentDate(LocalDateTime.now());
+        payment.setPaymentStatus(EPaymentStatus.UNPAID);
+        if (request.getPaymentMethod() == null || request.getPaymentMethod().isEmpty()) {
+            payment.setPaymentMethod(EPaymentMethod.COD);
+        } else {
+            payment.setPaymentMethod(FactoryEnum.getEnumInstance(EPaymentMethod.class, request.getPaymentMethod()));
+        }
+        paymentService.create(payment);
 
         return newOrder;
     }
 
     @Override
-    public Orders update(String orderID, OrderRequest request) {
-        return null;
+    public Orders updateOrderStatus(String orderID, String status) {
+        Orders order = getByID(orderID);
+        order.setOrderStatus(FactoryEnum.getEnumInstance(EOrderStatus.class, status));
+        log.info("[updateOrderStatus] - Updated order status successfully");
+        return order;
     }
 
     @Override
-    public void delete(String orderID) {
-
+    public List<Orders> getAll() {
+        List<Orders> orders = orderRepository.findAll();
+        log.info("[getAll] - Retrieved {} orders", orders.size());
+        return orders;
     }
 
     @Override
-    public List<Orders> searchOrder(String customerID, String voucherID, String orderDate, String totalAmount, String orderStatus) {
-        return List.of();
+    public List<Orders> getOrderByCustomer(String customerID) {
+        Customers customer = customerService.getByID(customerID);
+        List<Orders> orders = orderRepository.findByCustomers(customer);
+        log.info("[getOrderByCustomer] - Retrieved {} orders", orders.size());
+        return orders;
     }
 }

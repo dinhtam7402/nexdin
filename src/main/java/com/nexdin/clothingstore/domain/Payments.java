@@ -22,7 +22,9 @@ public class Payments {
     private String paymentID;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy hh:mm:ss")
     private LocalDateTime paymentDate;
+    @Enumerated(EnumType.STRING)
     private EPaymentMethod paymentMethod;
+    @Enumerated(EnumType.STRING)
     private EPaymentStatus paymentStatus;
 
     @OneToOne

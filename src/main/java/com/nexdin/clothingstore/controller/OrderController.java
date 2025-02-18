@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -25,6 +26,36 @@ public class OrderController {
                         .message("success")
                         .timestamp(LocalDateTime.now())
                         .result(order)
+                        .build());
+    }
+
+    @PutMapping("/admin/order/{orderID}/status")
+    public ResponseEntity<Response<?>> updateOrderStatus(@PathVariable String orderID, @RequestParam String status) {
+        Orders order = orderService.updateOrderStatus(orderID, status);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                Response.builder().status(HttpStatus.OK.value())
+                        .message("success")
+                        .result(order)
+                        .build());
+    }
+
+    @GetMapping("/admin/order/get-all")
+    public ResponseEntity<Response<?>> getAllOrder() {
+        List<Orders> orders = orderService.getAll();
+        return ResponseEntity.status(HttpStatus.OK).body(
+                Response.builder().status(HttpStatus.OK.value())
+                        .message("success")
+                        .result(orders)
+                        .build());
+    }
+
+    @GetMapping("/order/get-by-customer/{customerID}")
+    public ResponseEntity<Response<?>> getOrderByCustomer(@PathVariable String customerID) {
+        List<Orders> orders = orderService.getOrderByCustomer(customerID);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                Response.builder().status(HttpStatus.OK.value())
+                        .message("success")
+                        .result(orders)
                         .build());
     }
 }

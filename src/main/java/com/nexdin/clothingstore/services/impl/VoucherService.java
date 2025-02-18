@@ -178,9 +178,7 @@ public class VoucherService implements IVoucherService {
 
     @Override
     public Vouchers getAndLockByCode(String code) {
-        Vouchers voucher = voucherRepository.findAndLockByCode(code);
-        if (voucher == null) throw new EntityNotFoundException("Not found voucher by code: " + code);
-        return voucher;
+        return voucherRepository.findAndLockByCode(code);
     }
 
     @Override
@@ -203,6 +201,7 @@ public class VoucherService implements IVoucherService {
 
     private boolean isValidVoucher(Vouchers vouchers, int orderValue) {
         LocalDateTime now = LocalDateTime.now();
+        if (vouchers == null) return false;
         if (vouchers.getVoucherStatus() != EVoucherStatus.ACTIVE) return false;
         if (now.isBefore(vouchers.getStartDate()) || now.isAfter(vouchers.getEndDate())) return false;
         if (orderValue < vouchers.getMinOrderValue()) return false;
