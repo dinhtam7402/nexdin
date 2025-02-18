@@ -7,6 +7,7 @@ import com.nexdin.clothingstore.services.ICustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -73,7 +74,7 @@ public class CustomerController {
                         .build());
     }
 
-    @PostMapping("/admin/customer/create")
+    @PostMapping("/customer/create")
     public ResponseEntity<Response<?>> createCustomer(@RequestBody CustomerRequest request) {
         Customers customer = customerService.create(request);
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -84,7 +85,7 @@ public class CustomerController {
                         .build());
     }
 
-    @PutMapping("/admin/customer/update/{customerID}")
+    @PutMapping("/customer/update/{customerID}")
     public ResponseEntity<Response<?>> updateCustomer(@PathVariable String customerID, @RequestBody CustomerRequest request) {
         Customers customer = customerService.update(customerID, request);
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -95,6 +96,7 @@ public class CustomerController {
                         .build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/admin/customer/delete/{customerID}")
     public ResponseEntity<Response<?>> deleteCustomer(@PathVariable String customerID) {
         customerService.delete(customerID);

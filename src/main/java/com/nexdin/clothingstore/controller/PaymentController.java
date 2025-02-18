@@ -6,6 +6,7 @@ import com.nexdin.clothingstore.services.IPaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ public class PaymentController {
     @Autowired
     private IPaymentService paymentService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/admin/payment/{paymentID}/status")
     public ResponseEntity<Response<?>> confirmPayment(@PathVariable String paymentID, @RequestParam String status) {
         Payments payment = paymentService.confirmPayment(paymentID,  status);

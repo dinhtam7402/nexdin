@@ -8,6 +8,7 @@ import com.nexdin.clothingstore.services.ICategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ public class CategoryController {
     @Autowired
     private ICategoryService categoryService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/category/create")
     public ResponseEntity<Response<?>> createCategory(@RequestBody CategoryRequest request) {
         Categories newCategory = categoryService.createCategory(request);
@@ -32,6 +34,7 @@ public class CategoryController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/admin/category/update/{categoryID}")
     public ResponseEntity<Response<?>> updateCategory(@PathVariable String categoryID, @RequestBody CategoryRequest request) {
         Categories categories = categoryService.updateCategory(categoryID, request);
@@ -44,6 +47,7 @@ public class CategoryController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/admin/category/delete-by-id")
     public ResponseEntity<Response<?>> deleteByID(@RequestParam String categoryID) {
         categoryService.deleteCategory(categoryID);
@@ -55,6 +59,7 @@ public class CategoryController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/admin/category/delete-by-name")
     public ResponseEntity<Response<?>> deleteByName(@RequestParam String categoryName) {
         categoryService.deleteByCategoryName(categoryName);

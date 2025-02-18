@@ -7,6 +7,7 @@ import com.nexdin.clothingstore.services.IOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -29,6 +30,7 @@ public class OrderController {
                         .build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/admin/order/{orderID}/status")
     public ResponseEntity<Response<?>> updateOrderStatus(@PathVariable String orderID, @RequestParam String status) {
         Orders order = orderService.updateOrderStatus(orderID, status);
@@ -39,6 +41,7 @@ public class OrderController {
                         .build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/order/get-all")
     public ResponseEntity<Response<?>> getAllOrder() {
         List<Orders> orders = orderService.getAll();

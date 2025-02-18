@@ -7,6 +7,7 @@ import com.nexdin.clothingstore.services.IVoucherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ public class VoucherController {
     @Autowired
     private IVoucherService voucherService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/voucher/create")
     public ResponseEntity<Response<?>> createVoucher(@RequestBody VoucherRequest request) {
         Vouchers voucher = voucherService.create(request);
@@ -29,6 +31,7 @@ public class VoucherController {
                         .build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/admin/voucher/update/{voucherID}")
     public ResponseEntity<Response<?>> updateVoucher(@PathVariable String voucherID, @RequestBody VoucherRequest request) {
         Vouchers voucher = voucherService.update(voucherID, request);
@@ -40,6 +43,7 @@ public class VoucherController {
                         .build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/admin/voucher/delete/{voucherID}")
     public ResponseEntity<Response<?>> deleteVoucher(@PathVariable String voucherID) {
         voucherService.deleteByID(voucherID);
@@ -50,6 +54,7 @@ public class VoucherController {
                         .build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/voucher/disable/{voucherID}")
     public ResponseEntity<Response<?>> disableVoucher(@PathVariable String voucherID) {
         voucherService.disableVoucher(voucherID);

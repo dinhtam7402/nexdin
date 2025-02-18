@@ -8,6 +8,7 @@ import com.nexdin.clothingstore.services.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -101,6 +102,7 @@ public class ProductController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/product/create")
     public ResponseEntity<Response<?>> createProduct(@RequestBody ProductRequest request) {
         Products products = productService.create(request);
@@ -113,6 +115,7 @@ public class ProductController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/admin/product/update/{productID}")
     public ResponseEntity<Response<?>> updateProduct(@PathVariable String productID, @RequestBody ProductRequest request) {
         Products products = productService.update(productID, request);
@@ -125,6 +128,7 @@ public class ProductController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/admin/product/delete-by-id/{productID}")
     public ResponseEntity<Response<?>> deleteByID(@PathVariable String productID) {
         productService.deleteByID(productID);

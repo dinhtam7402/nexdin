@@ -7,6 +7,7 @@ import com.nexdin.clothingstore.services.IInventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ public class InventoryController {
     @Autowired
     private IInventoryService inventoryService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/inventory/create")
     public ResponseEntity<Response<?>> createInventory(@RequestBody InventoryRequest request) {
         Inventory inventory = inventoryService.create(request);
@@ -30,6 +32,7 @@ public class InventoryController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/admin/inventory/update/{inventoryID}")
     public ResponseEntity<Response<?>> updateInventory(@PathVariable String inventoryID, @RequestBody InventoryRequest request) {
         Inventory inventory = inventoryService.update(inventoryID, request);
@@ -42,6 +45,7 @@ public class InventoryController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/admin/inventory/delete/{inventoryID}")
     public ResponseEntity<Response<?>> deleteInventory(@PathVariable String inventoryID) {
         inventoryService.delete(inventoryID);

@@ -13,3 +13,9 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+
+nexdin:
+  app:
+    jwtSecret: my-super-secret-key-that-is-very-secure
+    jwtExpirationMs: 900000
+    jwtExpirationRefreshMs: 604800000
